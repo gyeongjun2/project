@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+        <!-- Mashead header-->
+        <header class="masthead">
+            <div class="container px-5">
+                <div class="row gx-5 align-items-center">
+                    <div class="col-lg-6">
+                        <!-- Mashead text and app badges-->
+                        <div class="mb-5 mb-lg-0 text-center text-lg-start">
+                            <h1 class="display-1 lh-1 mb-3">쓰슈.</h1>
+                            <p class="lead fw-normal text-muted mb-5">충북도민을 위한 정부, 지자체의 디지털 격차 해소를 위한 프로그램을 보여주는 사이트 입니다.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <!-- Masthead device mockup feature-->
+                        <div class="masthead-device-mockup">
+                            <svg class="circle" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="circleGradient" gradientTransform="rotate(45)">
+                                        <stop class="gradient-start-color" offset="0%"></stop>
+                                        <stop class="gradient-end-color" offset="100%"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="50" cy="50" r="50"></circle>
+                            </svg>
+                            <svg class="shape-1 d-none d-sm-block" viewBox="0 0 240.83 240.83" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(120.42 -49.88) rotate(45)"></rect>
+                                <rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(-49.88 120.42) rotate(-45)"></rect></svg>
+                            <svg class="shape-2 d-none d-sm-block" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50"></circle></svg>
+                            <div class="device-wrapper">
+                                <div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">
+                                    <div class="screen bg-black">
+                                        
+                                            <!-- PUT CONTENTS HERE:-->
+                                            <!-- * * This can be a video, image, or just about anything else.-->
+                                            <!-- * * Set the max width of your media to 100% and the height to-->
+                                            <!-- * * 100% like the demo example below.-->
+                                            
+                                            <!--사진-->
+                                        <img class="hi"src="static/welcome한밭.png" alt="">
+                                            
+                                            
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="startbtncont">
+                        <button class="startbtn" onclick="location.href='#features'">
+                            시작하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- App features section-->
+        <section id="features">
+            <p class="noti">참여 대상에 맞게 선택하여 주십시오.</p>
+            <div id="target" class="personCont">
+                <div class="buttonContainer">
+                    <div class="personPick">
+                        <input class="pickbtn elderly" type="button" value="고령층" onclick="toggleText('고령층', 'textContainer1')">
+                    </div>
+                    <div class="personPick">
+                        <input class="pickbtn disabled" type="button" value="기타장애인" onclick="toggleText('기타장애인', 'textContainer1')">
+                    </div>
+                    <div class="personPick">
+                        <input class="pickbtn farmer" type="button" value="농어업인" onclick="toggleText('농어업인', 'textContainer1')">
+                    </div>
+                    <div class="personPick">
+                        <input class="pickbtn youth" type="button" value="아동청소년" onclick="toggleText('아동청소년', 'textContainer1')">
+                    </div>
+                    <div class="personPick">
+                        <input class="pickbtn middle" type="button" value="중장년층" onclick="toggleText('중장년층', 'textContainer1')">
+                    </div>
+                    <div class="personPick">
+                        <input class="pickbtn hope" type="button" value="취·창업희망자" onclick="toggleText('취·창업희망자', 'textContainer1')">
+                    </div>
+                    <div class="personPick">
+                        <input class="pickbtn other" type="button" value="공통" onclick="toggleText('공통', 'textContainer1')">
+                    </div>
+                </div>
+                <div id="textContainer1" style="display: none;">
+                    <div id="contentWrapper">
+                        <!-- 데이터 아이템들이 여기에 추가됩니다 -->
+                    </div>
+                    <div id="loadMoreButtonContainer" class="text-center mt-4">
+                        <button id="loadMoreButton" class="btn btn-primary">더보기</button>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+<script>
+
+window.addEventListener('DOMContentLoaded', event => {
+
+// Activate Bootstrap scrollspy on the main nav element
+const mainNav = document.body.querySelector('#mainNav');
+if (mainNav) {
+    new bootstrap.ScrollSpy(document.body, {
+        target: '#mainNav',
+        offset: 74,
+    });
+};
+
+// Collapse responsive navbar when toggler is visible
+const navbarToggler = document.body.querySelector('.navbar-toggler');
+const responsiveNavItems = [].slice.call(
+    document.querySelectorAll('#navbarResponsive .nav-link')
+);
+responsiveNavItems.map(function (responsiveNavItem) {
+    responsiveNavItem.addEventListener('click', () => {
+        if (window.getComputedStyle(navbarToggler).display !== 'none') {
+            navbarToggler.click();
+        }
+    });
+});
+    updateCampInfo();
+    //initializePagination(campData.filter(item => item.target === currentContent));
+
+});
+
+function onPageButtonClick(pageNumber, data) {
+    currentPage = pageNumber;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageData = data.slice(startIndex, endIndex);
+    loadPage(currentPage, pageData);
+}
+
+
+function updateCampInfo() {
+  $.ajax({
+    url: "http://13.124.76.164:8000/sites/",
+    method: "GET",
+    dataType: "json",
+    success: function (data) {
+      campData = data; // 데이터를 campData에 저장
+      const filteredData = campData.filter(item => item.target === currentContent); // 필터링된 데이터
+      initializePagination(filteredData); // 필터링된 데이터로 페이지 버튼 초기화
+      onPageButtonClick(1, filteredData); // 초기에 첫 번째 페이지 데이터를 로드
+    },
+    error: function () {
+      console.error("캠프 정보를 불러오는데 실패하였습니다.");
+    }
+  });
+}
+
+// 초기 데이터를 불러오기 위해 updateCampInfo 함수를 최초로 호출합니다.
+updateCampInfo();
+
+
+setInterval(updateCampInfo, 10000);
+
+
+$("#loadMoreButton").on("click", function () {
+  currentPage++;
+  loadPage(currentPage, campData);
+});
+
+let currentPage = 1;
+const itemsPerPage = 10;
+
+initializePagination(campData);
+function loadMoreItems() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const filteredData = campData.filter(item => item.target === currentContent);
+    const pageData = filteredData.slice(startIndex, endIndex);
+    loadPage(currentPage, pageData);
+}
+
+    // 최초 페이지 버튼 초기화
+    initializePagination(campData.filter(item => item.target === currentContent));
+
+const loadMoreButton = document.getElementById("loadMoreButton");
+loadMoreButton.addEventListener("click", loadMoreItems);
+
+function createNewItem(item) {
+  const newItem = `
+    <div class="content-item">
+      <div class="camp-card">
+        <div class="camp-info">
+          <div>
+            <a href="/" target="_blank">
+              <h5 class="camp-title">${item.target}</h5>
+            </a>
+          </div>
+          <div class="hidden sm:block">
+            <div>
+              <p class="font-bold">
+                <h5>${item.title}</h5>
+              </p>
+            </div>
+
+            <div>
+              <p class="camp-date">${item.date}</p>
+            </div>
+            <div>
+              <p class="camp-date">${item.place}</p>
+            </div>
+            <hr>
+            <div class="apply-btn">
+              <a class="apply-btn-link" href="${item.url}" target="_blank">
+                신청하기
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return newItem;
+}
+
+
+
+
+var contentMap = {
+'고령층': ' ',
+'장애인': ' ',
+'농어업인': ' ',
+'아동청소년': ' ',
+'중장년층': ' ',
+'취창업희망자': ' ',
+'공통': ' ',
+};
+
+var currentContent = '';
+
+function toggleText(buttonValue, containerId) {
+    var container = document.getElementById(containerId);
+    var contentWrapper = container.querySelector("#contentWrapper");
+
+    if (currentContent === buttonValue) {
+        container.style.display = 'none';
+        contentWrapper.innerHTML = ''; // 이전 내용 삭제
+        currentContent = '';
+    } else {
+        var filteredData = campData.filter(item => item.target === buttonValue);
+        var content = createFilteredItems(filteredData);
+        contentWrapper.innerHTML = content; // 수정된 부분
+        container.style.display = 'block';
+        currentContent = buttonValue;
+    }
+}
+function createFilteredItems(filteredData) {
+    var content = '';
+    for (var i = 0; i < filteredData.length; i++) {
+        var newItem = createNewItem(filteredData[i]);
+        content += newItem;
+    }
+    return content;
+}
+
+
+// 지정한 페이지의 아이템 로드
+function loadPage(pageNumber, data) {
+    const startIndex = (pageNumber - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageData = data.slice(startIndex, endIndex);
+
+    const contentWrapper = document.getElementById("contentWrapper1");
+    contentWrapper.innerHTML = "";
+
+    pageData.forEach(item => {
+        const newItem = createNewItem(item);
+        contentWrapper.appendChild(newItem);
+    });
+}
+
+
+function initializePagination(data) {
+    const totalItems = data.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    const paginationContainer = document.getElementById("pagination1");
+    paginationContainer.innerHTML = "";
+
+    for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement("button");
+        pageButton.innerText = i;
+
+        pageButton.classList.add("pagination-button");
+        pageButton.addEventListener("click", () => onPageButtonClick(i, filteredData)); // 수정된 부분
+
+        paginationContainer.appendChild(pageButton);
+    }
+
+    // 페이지 버튼이 추가될 때마다 페이지를 갱신하도록 호출
+    onPageButtonClick(currentPage, filteredData); // 수정된 부분
+}
+</script>
+
+        </section>
+        <!-- App badge section-->
+
+
+        </section>
+        <!-- Footer-->
+
+{% endblock %}
