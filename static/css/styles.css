@@ -11384,6 +11384,7 @@ footer a:hover, footer a:active, footer a:focus {
             font-size: 20px;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* 그림자 효과 추가 */
+
         }
 .plusBut:hover {
   background-color: gainsboro;

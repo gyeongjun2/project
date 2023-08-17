@@ -59,8 +59,8 @@
 
         <!-- App features section-->
         <section id="features">
-            <p class="noti">참여 대상에 맞게 선택하여 주십시오.</p>
             <div id="target" class="personCont">
+
                 <div class="buttonContainer">
                     <div class="personPick">
                         <input class="pickbtn elderly" type="button" value="고령층" onclick="toggleText('고령층', 'textContainer1')">
@@ -83,18 +83,21 @@
                     <div class="personPick">
                         <input class="pickbtn other" type="button" value="공통" onclick="toggleText('공통', 'textContainer1')">
                     </div>
+                    <div class="personPick">
+                        <input class="pickbtn other" type="button" value="소상공인" onclick="toggleText('소상공인', 'textContainer1')">
+                    </div>
                 </div>
+                
                 <div id="textContainer1" style="display: none;">
                     <div id="contentWrapper">
-                        <!-- 데이터 아이템들이 여기에 추가됩니다 -->
+                        
                     </div>
-                    <div id="loadMoreButtonContainer" class="text-center mt-4">
-                        <button id="loadMoreButton" class="btn btn-primary">더보기</button>
-                    </div>
-                </div>
+                    <button class="plusBut" id="loadMoreButton">
+                        더보기
+                    </button>
                 </div>
             </div>
-
+            
 <script>
 
 window.addEventListener('DOMContentLoaded', event => {
@@ -120,18 +123,9 @@ responsiveNavItems.map(function (responsiveNavItem) {
         }
     });
 });
-    updateCampInfo();
-    //initializePagination(campData.filter(item => item.target === currentContent));
 
 });
 
-function onPageButtonClick(pageNumber, data) {
-    currentPage = pageNumber;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const pageData = data.slice(startIndex, endIndex);
-    loadPage(currentPage, pageData);
-}
 
 
 function updateCampInfo() {
@@ -141,45 +135,52 @@ function updateCampInfo() {
     dataType: "json",
     success: function (data) {
       campData = data; // 데이터를 campData에 저장
-      const filteredData = campData.filter(item => item.target === currentContent); // 필터링된 데이터
-      initializePagination(filteredData); // 필터링된 데이터로 페이지 버튼 초기화
-      onPageButtonClick(1, filteredData); // 초기에 첫 번째 페이지 데이터를 로드
+      loadInitialItems(); // 데이터를 받아오면 아이템을 미리 로드
+      document.getElementById('loadMoreButton').style.display = 'block';
     },
     error: function () {
       console.error("캠프 정보를 불러오는데 실패하였습니다.");
     }
   });
 }
-
 // 초기 데이터를 불러오기 위해 updateCampInfo 함수를 최초로 호출합니다.
 updateCampInfo();
 
 
-setInterval(updateCampInfo, 10000);
+setInterval(updateCampInfo, 10000); // 10000 밀리초 = 10초
 
+const initialItemsToShow = 10;
 
-$("#loadMoreButton").on("click", function () {
-  currentPage++;
-  loadPage(currentPage, campData);
-});
+function loadInitialItems() {
+  currentPage = 1; // 현재 페이지 초기화
+  loadMoreItems(); // 초기 아이템 로드
+}
+
 
 let currentPage = 1;
 const itemsPerPage = 10;
 
-initializePagination(campData);
 function loadMoreItems() {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const filteredData = campData.filter(item => item.target === currentContent);
-    const pageData = filteredData.slice(startIndex, endIndex);
-    loadPage(currentPage, pageData);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const filteredData = campData.filter(item => item.target === currentContent);
+
+  const contentWrapper = document.getElementById('contentWrapper');
+  
+  for (let i = startIndex; i < endIndex && i < filteredData.length; i++) {
+    const newItem = createNewItem(filteredData[i]);
+    contentWrapper.insertAdjacentHTML('beforeend', newItem);
+  }
+
+  currentPage++;
+
+  // 더 이상 로드할 데이터가 없는 경우 더보기 버튼 숨기기
+  if (endIndex >= filteredData.length) {
+    document.getElementById('loadMoreButton').style.display = 'none';
+  } else {
+    document.getElementById('loadMoreButton').style.display = 'block';
+  }
 }
-
-    // 최초 페이지 버튼 초기화
-    initializePagination(campData.filter(item => item.target === currentContent));
-
-const loadMoreButton = document.getElementById("loadMoreButton");
-loadMoreButton.addEventListener("click", loadMoreItems);
 
 function createNewItem(item) {
   const newItem = `
@@ -220,6 +221,8 @@ function createNewItem(item) {
 }
 
 
+// 페이지가 로드되면 처음 30개의 아이템을 로드합니다.
+
 
 
 var contentMap = {
@@ -235,21 +238,35 @@ var contentMap = {
 var currentContent = '';
 
 function toggleText(buttonValue, containerId) {
-    var container = document.getElementById(containerId);
-    var contentWrapper = container.querySelector("#contentWrapper");
+  var container = document.getElementById(containerId);
+  var contentWrapper = document.getElementById('contentWrapper');
 
-    if (currentContent === buttonValue) {
-        container.style.display = 'none';
-        contentWrapper.innerHTML = ''; // 이전 내용 삭제
-        currentContent = '';
-    } else {
-        var filteredData = campData.filter(item => item.target === buttonValue);
-        var content = createFilteredItems(filteredData);
-        contentWrapper.innerHTML = content; // 수정된 부분
-        container.style.display = 'block';
-        currentContent = buttonValue;
-    }
+  if (currentContent === buttonValue) {
+    container.style.display = 'none';
+    contentWrapper.innerHTML = ''; // 이전 내용 삭제
+    currentContent = '';
+  } else {
+    var filteredData = campData.filter(item => item.target === buttonValue);
+
+    // 현재 버튼에 해당하는 데이터만 로드하도록 수정
+    currentPage = 1;
+    contentWrapper.innerHTML = ''; // 이전 내용 삭제
+    loadMoreItems();
+
+    container.style.display = 'block';
+    currentContent = buttonValue;
+  }
 }
+
+window.addEventListener('DOMContentLoaded', event => {
+  loadInitialItems();
+});
+
+// 더 보기 버튼 클릭 시 추가 아이템 로드
+$("#loadMoreButton").on("click", function () {
+  loadMoreItems();
+});
+
 function createFilteredItems(filteredData) {
     var content = '';
     for (var i = 0; i < filteredData.length; i++) {
@@ -259,43 +276,6 @@ function createFilteredItems(filteredData) {
     return content;
 }
 
-
-// 지정한 페이지의 아이템 로드
-function loadPage(pageNumber, data) {
-    const startIndex = (pageNumber - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const pageData = data.slice(startIndex, endIndex);
-
-    const contentWrapper = document.getElementById("contentWrapper1");
-    contentWrapper.innerHTML = "";
-
-    pageData.forEach(item => {
-        const newItem = createNewItem(item);
-        contentWrapper.appendChild(newItem);
-    });
-}
-
-
-function initializePagination(data) {
-    const totalItems = data.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-    const paginationContainer = document.getElementById("pagination1");
-    paginationContainer.innerHTML = "";
-
-    for (let i = 1; i <= totalPages; i++) {
-        const pageButton = document.createElement("button");
-        pageButton.innerText = i;
-
-        pageButton.classList.add("pagination-button");
-        pageButton.addEventListener("click", () => onPageButtonClick(i, filteredData)); // 수정된 부분
-
-        paginationContainer.appendChild(pageButton);
-    }
-
-    // 페이지 버튼이 추가될 때마다 페이지를 갱신하도록 호출
-    onPageButtonClick(currentPage, filteredData); // 수정된 부분
-}
 </script>
 
         </section>
