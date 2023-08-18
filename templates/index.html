@@ -135,14 +135,14 @@ function updateCampInfo() {
     dataType: "json",
     success: function (data) {
       campData = data; // 데이터를 campData에 저장
-      loadInitialItems(); // 데이터를 받아오면 아이템을 미리 로드
-      document.getElementById('loadMoreButton').style.display = 'block';
+      loadMoreItems(); // 데이터를 받아오면 아이템을 미리 로드
     },
     error: function () {
       console.error("캠프 정보를 불러오는데 실패하였습니다.");
     }
   });
 }
+
 // 초기 데이터를 불러오기 위해 updateCampInfo 함수를 최초로 호출합니다.
 updateCampInfo();
 
@@ -165,21 +165,12 @@ function loadMoreItems() {
   const endIndex = startIndex + itemsPerPage;
   const filteredData = campData.filter(item => item.target === currentContent);
 
-  const contentWrapper = document.getElementById('contentWrapper');
-  
   for (let i = startIndex; i < endIndex && i < filteredData.length; i++) {
     const newItem = createNewItem(filteredData[i]);
-    contentWrapper.insertAdjacentHTML('beforeend', newItem);
+    $("#contentWrapper").append(newItem);
   }
 
   currentPage++;
-
-  // 더 이상 로드할 데이터가 없는 경우 더보기 버튼 숨기기
-  if (endIndex >= filteredData.length) {
-    document.getElementById('loadMoreButton').style.display = 'none';
-  } else {
-    document.getElementById('loadMoreButton').style.display = 'block';
-  }
 }
 
 function createNewItem(item) {
@@ -220,8 +211,6 @@ function createNewItem(item) {
   return newItem;
 }
 
-
-// 페이지가 로드되면 처음 30개의 아이템을 로드합니다.
 
 
 
